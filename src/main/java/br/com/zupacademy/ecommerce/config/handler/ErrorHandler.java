@@ -14,13 +14,13 @@ import java.util.List;
 public class ErrorHandler {
 
     @ResponseStatus ( HttpStatus.BAD_REQUEST )
-    @ExceptionHandler( MethodArgumentNotValidException.class )
-    public List<ErrorHandlerResponse> handler(MethodArgumentNotValidException exception){
+    @ExceptionHandler ( MethodArgumentNotValidException.class )
+    public List<ErrorHandlerResponse> handler ( MethodArgumentNotValidException exception ) {
         List<ErrorHandlerResponse> responses = new ArrayList<>();
         List<FieldError> fieldError = exception.getBindingResult().getFieldErrors();
 
         fieldError.forEach(e -> {
-            ErrorHandlerResponse error = new ErrorHandlerResponse(e.getField(), e.getDefaultMessage());
+            ErrorHandlerResponse error = new ErrorHandlerResponse(e.getField() , e.getDefaultMessage());
             responses.add(error);
         });
         return responses;
