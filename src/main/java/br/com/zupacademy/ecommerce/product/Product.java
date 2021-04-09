@@ -4,7 +4,6 @@ import br.com.zupacademy.ecommerce.product.category.Category;
 import br.com.zupacademy.ecommerce.product.attributes.ProductAttribute;
 import br.com.zupacademy.ecommerce.product.attributes.ProductAttributeRequest;
 import br.com.zupacademy.ecommerce.product.images.ProductImage;
-import br.com.zupacademy.ecommerce.product.review.ProductReview;
 import br.com.zupacademy.ecommerce.user.User;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.validator.constraints.Length;
@@ -15,7 +14,10 @@ import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
@@ -66,10 +68,6 @@ public class Product {
     @OneToMany ( mappedBy = "product", cascade = CascadeType.MERGE )
     //1
     private Set<ProductImage> images = new HashSet<>();
-
-    @OneToMany ( mappedBy = "product", cascade = CascadeType.MERGE )
-    //1
-    private List<ProductReview> productReviews = new ArrayList<>();
 
     public Product (
             @NotBlank String productName ,
