@@ -1,4 +1,4 @@
-package br.com.zupacademy.ecommerce.category;
+package br.com.zupacademy.ecommerce.product.category;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

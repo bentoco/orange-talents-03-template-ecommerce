@@ -1,6 +1,6 @@
 package br.com.zupacademy.ecommerce.product;
 
-import br.com.zupacademy.ecommerce.category.Category;
+import br.com.zupacademy.ecommerce.product.category.Category;
 import br.com.zupacademy.ecommerce.product.attributes.ProductAttributeRequest;
 import br.com.zupacademy.ecommerce.user.User;
 import br.com.zupacademy.ecommerce.user.UserPasswordClear;

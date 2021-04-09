@@ -1,4 +1,4 @@
-package br.com.zupacademy.ecommerce.category;
+package br.com.zupacademy.ecommerce.product.category;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package br.com.zupacademy.ecommerce.category;
+package br.com.zupacademy.ecommerce.product.category;
 
 import br.com.zupacademy.ecommerce.config.validators.MustBeUnique;
 import br.com.zupacademy.ecommerce.config.validators.MustExistId;

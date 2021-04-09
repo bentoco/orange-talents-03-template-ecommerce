@@ -41,6 +41,10 @@ public class ProductAttribute {
     public ProductAttribute () {
     }
 
+    public Long getId () {
+        return id;
+    }
+
     public String getAttributeName () {
         return attributeName;
     }
@@ -58,5 +62,13 @@ public class ProductAttribute {
 
     @Override public int hashCode () {
         return Objects.hash(attributeName);
+    }
+
+    @Override public String toString () {
+        return "ProductAttribute{" +
+                "id=" + id +
+                ", attributeName='" + attributeName + '\'' +
+                ", attributeDescription='" + attributeDescription + '\'' +
+                '}';
     }
 }

@@ -1,8 +1,9 @@
 package br.com.zupacademy.ecommerce.product;
 
-import br.com.zupacademy.ecommerce.category.Category;
+import br.com.zupacademy.ecommerce.product.category.Category;
 import br.com.zupacademy.ecommerce.product.attributes.ProductAttribute;
 import br.com.zupacademy.ecommerce.product.attributes.ProductAttributeRequest;
+import br.com.zupacademy.ecommerce.product.images.ProductImage;
 import br.com.zupacademy.ecommerce.user.User;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.validator.constraints.Length;
@@ -48,18 +49,25 @@ public class Product {
     @NotNull
     @Valid
     @ManyToOne
+    //1
     private Category category;
 
     @NotNull
     @Valid
     @ManyToOne
+    //1
     private User productOwner;
 
     @CreationTimestamp
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @OneToMany ( mappedBy = "product", cascade = CascadeType.PERSIST )
+    //1
     private Set<ProductAttribute> attributes = new HashSet<>();
+
+    @OneToMany ( mappedBy = "product", cascade = CascadeType.MERGE )
+    //1
+    private Set<ProductImage> images = new HashSet<>();
 
     public Product (
             @NotBlank String productName ,
@@ -75,7 +83,9 @@ public class Product {
         this.description = description;
         this.category = category;
         this.productOwner = productOwner;
+        //1
         this.attributes.addAll(attributes.stream().map(attribute -> attribute.toModel(this)).collect(Collectors.toSet()));
+        //1
         Assert.isTrue(this.attributes.size() >= 3 , "produto deve conter no mínimo 3 características");
     }
 
@@ -103,6 +113,26 @@ public class Product {
         return productOwner;
     }
 
+    public Integer getStockQuantity () {
+        return stockQuantity;
+    }
+
+    public Category getCategory () {
+        return category;
+    }
+
+    public LocalDateTime getCreatedAt () {
+        return createdAt;
+    }
+
+    public Set<ProductAttribute> getAttributes () {
+        return attributes;
+    }
+
+    public Set<ProductImage> getImages () {
+        return images;
+    }
+
     @Override public boolean equals ( Object o ) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -112,5 +142,31 @@ public class Product {
 
     @Override public int hashCode () {
         return Objects.hash(productName);
+    }
+
+    public void setImagesToProduct ( Set<String> links ) {
+        Set<ProductImage>
+                images =
+                links.stream().map(link -> new ProductImage(link , this)).collect(Collectors.toSet());
+        this.images.addAll(images);
+    }
+
+    @Override public String toString () {
+        return "Product{" +
+                "id=" + id +
+                ", productName='" + productName + '\'' +
+                ", price=" + price +
+                ", stockQuantity=" + stockQuantity +
+                ", description='" + description + '\'' +
+                ", category=" + category +
+                ", productOwner=" + productOwner +
+                ", createdAt=" + createdAt +
+                ", attributes=" + attributes +
+                ", images=" + images +
+                '}';
+    }
+
+    public boolean productIsHisOwn ( User possibleProductOwner ) {
+        return this.getProductOwner().getLogin().equals(possibleProductOwner.getLogin());
     }
 }

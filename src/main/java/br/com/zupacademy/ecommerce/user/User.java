@@ -46,6 +46,10 @@ public class User implements UserDetails {
         return login;
     }
 
+    public LocalDateTime getCreatedAt () {
+        return createdAt;
+    }
+
     @Override public String getPassword () {
         return password;
     }
@@ -72,5 +76,13 @@ public class User implements UserDetails {
 
     @Override public boolean isEnabled () {
         return true;
+    }
+
+    @Override public String toString () {
+        return "User{" +
+                "id=" + id +
+                ", login='" + login + '\'' +
+                ", createdAt=" + createdAt +
+                '}';
     }
 }

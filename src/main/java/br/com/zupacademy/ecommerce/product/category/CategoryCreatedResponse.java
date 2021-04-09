@@ -1,4 +1,4 @@
-package br.com.zupacademy.ecommerce.category;
+package br.com.zupacademy.ecommerce.product.category;
 
 public class CategoryCreatedResponse {
 
