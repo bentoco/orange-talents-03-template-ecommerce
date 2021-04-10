@@ -4,6 +4,7 @@ import br.com.zupacademy.ecommerce.product.Product;
 import br.com.zupacademy.ecommerce.product.ProductRepository;
 import br.com.zupacademy.ecommerce.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -36,16 +37,14 @@ public class ProductReviewController {
 
         //1
         Product product = manager.find(Product.class , productId);
-        //1
-        User userLoggerd = manager.find(User.class , user.getId());
 
         //1
         // não é permitido o dono do produto adicionar uma opnião
-        if (product.getProductOwner() == userLoggerd) {
+        if (product.getProductOwner() == user) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
         //1
-        ProductReview productReview = request.toModel(manager , product , userLoggerd);
+        ProductReview productReview = request.toModel(manager , product , user);
         manager.persist(productReview);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ProductReviewResponse(productReview));
     }
