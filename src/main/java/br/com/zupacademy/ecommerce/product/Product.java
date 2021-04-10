@@ -4,6 +4,7 @@ import br.com.zupacademy.ecommerce.product.category.Category;
 import br.com.zupacademy.ecommerce.product.attributes.ProductAttribute;
 import br.com.zupacademy.ecommerce.product.attributes.ProductAttributeRequest;
 import br.com.zupacademy.ecommerce.product.images.ProductImage;
+import br.com.zupacademy.ecommerce.product.question.ProductQuestion;
 import br.com.zupacademy.ecommerce.product.review.ProductReview;
 import br.com.zupacademy.ecommerce.user.User;
 import org.hibernate.annotations.CreationTimestamp;
@@ -70,6 +71,10 @@ public class Product {
     @OneToMany ( mappedBy = "product", cascade = CascadeType.MERGE )
     //1
     private List<ProductReview> productReviews = new ArrayList<>();
+
+    @OneToMany ( mappedBy = "product", cascade = CascadeType.MERGE )
+    //1
+    private List<ProductQuestion> questions = new ArrayList<>();
 
     public Product (
             @NotBlank String productName ,

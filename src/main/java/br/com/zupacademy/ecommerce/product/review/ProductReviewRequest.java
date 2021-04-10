@@ -2,6 +2,7 @@ package br.com.zupacademy.ecommerce.product.review;
 
 import br.com.zupacademy.ecommerce.product.Product;
 import br.com.zupacademy.ecommerce.user.User;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.util.Assert;
 
