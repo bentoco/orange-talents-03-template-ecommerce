@@ -197,4 +197,12 @@ public class Product {
                 ", images=" + images +
                 '}';
     }
+
+    public boolean reserveIfHasStock ( @Positive int purchaseQuantity ) {
+        if (purchaseQuantity <= this.stockQuantity) {
+            stockQuantity -= purchaseQuantity;
+            return true;
+        }
+        return false;
+    }
 }
