@@ -6,6 +6,7 @@ import br.com.zupacademy.ecommerce.product.attributes.ProductAttributeRequest;
 import br.com.zupacademy.ecommerce.product.images.ProductImage;
 import br.com.zupacademy.ecommerce.product.question.ProductQuestion;
 import br.com.zupacademy.ecommerce.product.review.ProductReview;
+import br.com.zupacademy.ecommerce.product.review.ProductReviewDetails;
 import br.com.zupacademy.ecommerce.user.User;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.validator.constraints.Length;
@@ -17,6 +18,7 @@ import javax.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Entity
@@ -70,11 +72,10 @@ public class Product {
 
     @OneToMany ( mappedBy = "product", cascade = CascadeType.MERGE )
     //1
-    private List<ProductReview> productReviews = new ArrayList<>();
+    private Set<ProductReview> productReviews = new HashSet<>();
 
-    @OneToMany ( mappedBy = "product", cascade = CascadeType.MERGE )
-    //1
-    private List<ProductQuestion> questions = new ArrayList<>();
+    @OneToMany ( mappedBy = "product" )
+    private Set<ProductQuestion> questions = new HashSet<>();
 
     public Product (
             @NotBlank String productName ,
@@ -140,6 +141,33 @@ public class Product {
         return images;
     }
 
+    public Set<ProductQuestion> getQuestions () {
+        return questions;
+    }
+
+    public Set<ProductReview> getProductReviews () {
+        return productReviews;
+    }
+
+    public ProductReviewDetails getReviews () {
+        return new ProductReviewDetails(this.productReviews);
+    }
+
+    public void setImagesToProduct ( Set<String> links ) {
+        Set<ProductImage>
+                images =
+                links.stream().map(link -> new ProductImage(link , this)).collect(Collectors.toSet());
+        this.images.addAll(images);
+    }
+
+    public <T> Set<T> mapImages ( Function<ProductImage, T> mapper ) {
+        return this.images.stream().map(mapper).collect(Collectors.toSet());
+    }
+
+    public <T> Set<T> mapQuestions ( Function<ProductQuestion, T> mapper ) {
+        return this.questions.stream().map(mapper).collect(Collectors.toSet());
+    }
+
     @Override public boolean equals ( Object o ) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -151,11 +179,8 @@ public class Product {
         return Objects.hash(productName);
     }
 
-    public void setImagesToProduct ( Set<String> links ) {
-        Set<ProductImage>
-                images =
-                links.stream().map(link -> new ProductImage(link , this)).collect(Collectors.toSet());
-        this.images.addAll(images);
+    public boolean productIsHisOwn ( User possibleProductOwner ) {
+        return this.getProductOwner().getLogin().equals(possibleProductOwner.getLogin());
     }
 
     @Override public String toString () {
@@ -171,9 +196,5 @@ public class Product {
                 ", attributes=" + attributes +
                 ", images=" + images +
                 '}';
-    }
-
-    public boolean productIsHisOwn ( User possibleProductOwner ) {
-        return this.getProductOwner().getLogin().equals(possibleProductOwner.getLogin());
     }
 }

@@ -35,6 +35,10 @@ public class ProductReview {
         this.product = product;
     }
 
+    @Deprecated
+    public ProductReview () {
+    }
+
     public Long getId () {
         return id;
     }
