@@ -1,13 +1,12 @@
 package br.com.zupacademy.ecommerce.product.purchase;
 
-import br.com.zupacademy.ecommerce.config.mailer.MailerManager;
 import br.com.zupacademy.ecommerce.product.Product;
 import br.com.zupacademy.ecommerce.user.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -15,50 +14,35 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
+import java.util.Optional;
 
 @RestController
-public class PurchaseController {
+@RequestMapping ( "/api/purchase" )
+class PurchaseController {
 
     @PersistenceContext
     private EntityManager manager;
 
-    @Autowired
-    private MailerManager mailer;
-
-    @PostMapping ( value = "/api/purchase" )
+    @PostMapping
     @Transactional
-    public String createPurchase (
+    public String buyProduct (
             @Valid @RequestBody PurchaseRequest request ,
             @AuthenticationPrincipal User buyer ,
             UriComponentsBuilder builder
     ) throws BindException {
-        var purchaseProduct = manager.find(Product.class , request.getProductId());
-        var purchaseQuantity = request.getQuantity();
-        var purchasePayment = request.getPaymentGateway();
 
-        if (purchaseProduct.reserveIfHasStock(purchaseQuantity)) {
-            var newPurchase = new Purchase(purchaseProduct , purchaseQuantity , purchasePayment , buyer);
-            manager.persist(newPurchase);
-            mailer.newPurchase(newPurchase, purchaseProduct);
+        Product purchaseProduct = manager.find(Product.class , request.getProductId());
+        Optional<Purchase> optionalPurchase = purchaseProduct.reserveIfHasStock(request , buyer);
 
-            if (purchasePayment.equals(PaymentGateway.PAYPAL)) {
-                //paypal.com?buyerId={idGeradoDaCompra}&redirectUrl={urlRetornoAppPosPagamento}
-                String
-                        urlPaypal =
-                        builder.path("/redirect-paypal/{id}").buildAndExpand(newPurchase.getId()).toString();
-                return "paypal.com?buyerId=" + newPurchase.getId() + "&redirectUrl=" + urlPaypal;
-            } else {
-                //pagseguro.com?returnId={idGeradoDaCompra}&redirectUrl={urlRetornoAppPosPagamento}
-                String
-                        urlPagseguro =
-                        builder.path("/redirect-pagseguro/{id}").buildAndExpand(newPurchase.getId()).toString();
-                return "pagseguro.com?returnId=" + newPurchase.getId() + "&redirectUrl=" + urlPagseguro;
-            }
+        if (optionalPurchase.isEmpty()) {
+            BindException outOfStockException = new BindException(request , "newPurchaseRequest");
+            outOfStockException.reject("purchase.product.outOfStock" , "out of stock");
+            throw outOfStockException;
         }
 
-        BindException outOfStockException = new BindException(request , "newPurchaseRequest");
-        outOfStockException.reject("purchase.product.outOfStock" , "Sem estoque para o produto");
+        Purchase newPurchase = optionalPurchase.get();
+        manager.persist(newPurchase);
 
-        throw outOfStockException;
+        return newPurchase.urlRedirect(builder);
     }
 }

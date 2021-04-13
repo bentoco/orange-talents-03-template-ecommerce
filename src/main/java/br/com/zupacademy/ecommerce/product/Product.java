@@ -4,6 +4,8 @@ import br.com.zupacademy.ecommerce.product.category.Category;
 import br.com.zupacademy.ecommerce.product.attributes.ProductAttribute;
 import br.com.zupacademy.ecommerce.product.attributes.ProductAttributeRequest;
 import br.com.zupacademy.ecommerce.product.images.ProductImage;
+import br.com.zupacademy.ecommerce.product.purchase.Purchase;
+import br.com.zupacademy.ecommerce.product.purchase.PurchaseRequest;
 import br.com.zupacademy.ecommerce.product.question.ProductQuestion;
 import br.com.zupacademy.ecommerce.product.review.ProductReview;
 import br.com.zupacademy.ecommerce.product.review.ProductReviewDetails;
@@ -198,11 +200,19 @@ public class Product {
                 '}';
     }
 
-    public boolean reserveIfHasStock ( @Positive int purchaseQuantity ) {
-        if (purchaseQuantity <= this.stockQuantity) {
-            stockQuantity -= purchaseQuantity;
-            return true;
+    /**
+     * changes the product {@link #stockQuantity}
+     *
+     * @param request a new Purchase (this parameter is highly coupled, but if needed an interface can be created to decouple)
+     * @param buyer   a buyer
+     * @return An {@link Optional<Purchase>} with a new {@link Purchase} if stock quantity is valid
+     */
+    public Optional<Purchase> reserveIfHasStock ( PurchaseRequest request , User buyer ) {
+        if (stockQuantity < request.getQuantity()) {
+            return Optional.empty();
         }
-        return false;
+        stockQuantity -= request.getQuantity();
+
+        return Optional.of(request.toPurchase(buyer , this));
     }
 }

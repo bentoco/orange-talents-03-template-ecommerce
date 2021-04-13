@@ -2,44 +2,36 @@ package br.com.zupacademy.ecommerce.product.purchase;
 
 import br.com.zupacademy.ecommerce.config.validators.MustExistId;
 import br.com.zupacademy.ecommerce.product.Product;
+import br.com.zupacademy.ecommerce.product.purchase.payment.PaymentGateway;
+import br.com.zupacademy.ecommerce.user.User;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
 
 public class PurchaseRequest {
-
-    @NotNull
-    @Positive
-    private int quantity;
 
     @MustExistId ( target = "id", klazz = Product.class )
     private Long productId;
 
-    @Enumerated ( EnumType.STRING )
+    @Min ( 1 )
+    private int quantity;
+
     @NotNull
     private PaymentGateway paymentGateway;
 
-
-    public PurchaseRequest (
-            @NotNull @Positive int quantity ,
-            Long productId ,
-            @NotNull PaymentGateway paymentGateway ) {
-        this.quantity = quantity;
-        this.productId = productId;
-        this.paymentGateway = paymentGateway;
+    public Long getProductId () {
+        return productId;
     }
 
     public int getQuantity () {
         return quantity;
     }
 
-    public Long getProductId () {
-        return productId;
-    }
-
     public PaymentGateway getPaymentGateway () {
         return paymentGateway;
+    }
+
+    public Purchase toPurchase ( User productBuyer , Product product ) {
+        return new Purchase(product , quantity , paymentGateway , productBuyer);
     }
 }
