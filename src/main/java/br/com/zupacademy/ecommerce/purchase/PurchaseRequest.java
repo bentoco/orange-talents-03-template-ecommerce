@@ -1,7 +1,8 @@
-package br.com.zupacademy.ecommerce.product.purchase;
+package br.com.zupacademy.ecommerce.purchase;
 
 import br.com.zupacademy.ecommerce.config.validators.MustExistId;
 import br.com.zupacademy.ecommerce.product.Product;
+import br.com.zupacademy.ecommerce.purchase.payment.PaymentGateway;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;

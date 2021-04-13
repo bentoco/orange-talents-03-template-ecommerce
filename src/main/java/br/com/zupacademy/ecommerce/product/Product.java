@@ -183,6 +183,15 @@ public class Product {
         return this.getProductOwner().getLogin().equals(possibleProductOwner.getLogin());
     }
 
+    public boolean reserveIfHasStock ( @Positive int purchaseQuantity ) {
+        Assert.isTrue(purchaseQuantity > 0 , "A quantidade deve ser maior que zero para abater o estoque " + purchaseQuantity);
+        if (purchaseQuantity <= this.stockQuantity) {
+            stockQuantity -= purchaseQuantity;
+            return true;
+        }
+        return false;
+    }
+
     @Override public String toString () {
         return "Product{" +
                 "id=" + id +
@@ -196,13 +205,5 @@ public class Product {
                 ", attributes=" + attributes +
                 ", images=" + images +
                 '}';
-    }
-
-    public boolean reserveIfHasStock ( @Positive int purchaseQuantity ) {
-        if (purchaseQuantity <= this.stockQuantity) {
-            stockQuantity -= purchaseQuantity;
-            return true;
-        }
-        return false;
     }
 }

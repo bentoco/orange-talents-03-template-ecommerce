@@ -1,4 +1,4 @@
-package br.com.zupacademy.ecommerce.product.purchase;
+package br.com.zupacademy.ecommerce.purchase;
 
 import br.com.zupacademy.ecommerce.config.mailer.MailerManager;
 import br.com.zupacademy.ecommerce.product.Product;
@@ -34,26 +34,15 @@ public class PurchaseController {
     ) throws BindException {
         var purchaseProduct = manager.find(Product.class , request.getProductId());
         var purchaseQuantity = request.getQuantity();
-        var purchasePayment = request.getPaymentGateway();
 
         if (purchaseProduct.reserveIfHasStock(purchaseQuantity)) {
-            var newPurchase = new Purchase(purchaseProduct , purchaseQuantity , purchasePayment , buyer);
-            manager.persist(newPurchase);
-            mailer.newPurchase(newPurchase, purchaseProduct);
+            var paymentMethod = request.getPaymentGateway();
+            var newPurchase = new Purchase(purchaseProduct , purchaseQuantity , paymentMethod , buyer);
 
-            if (purchasePayment.equals(PaymentGateway.PAYPAL)) {
-                //paypal.com?buyerId={idGeradoDaCompra}&redirectUrl={urlRetornoAppPosPagamento}
-                String
-                        urlPaypal =
-                        builder.path("/redirect-paypal/{id}").buildAndExpand(newPurchase.getId()).toString();
-                return "paypal.com?buyerId=" + newPurchase.getId() + "&redirectUrl=" + urlPaypal;
-            } else {
-                //pagseguro.com?returnId={idGeradoDaCompra}&redirectUrl={urlRetornoAppPosPagamento}
-                String
-                        urlPagseguro =
-                        builder.path("/redirect-pagseguro/{id}").buildAndExpand(newPurchase.getId()).toString();
-                return "pagseguro.com?returnId=" + newPurchase.getId() + "&redirectUrl=" + urlPagseguro;
-            }
+            manager.persist(newPurchase);
+            mailer.newPurchase(newPurchase , purchaseProduct);
+
+            return newPurchase.urlRedirect(builder);
         }
 
         BindException outOfStockException = new BindException(request , "newPurchaseRequest");

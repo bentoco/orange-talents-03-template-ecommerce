@@ -1,7 +1,7 @@
 package br.com.zupacademy.ecommerce.config.mailer;
 
 import br.com.zupacademy.ecommerce.product.Product;
-import br.com.zupacademy.ecommerce.product.purchase.Purchase;
+import br.com.zupacademy.ecommerce.purchase.Purchase;
 import br.com.zupacademy.ecommerce.product.question.ProductQuestion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
