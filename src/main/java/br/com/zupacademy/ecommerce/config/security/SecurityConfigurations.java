@@ -55,6 +55,8 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
     @Override protected void configure ( HttpSecurity http ) throws Exception {
         http.authorizeRequests()
                 .antMatchers(HttpMethod.POST , "/api/users").permitAll()
+                .antMatchers("/invoices").permitAll()
+                .antMatchers("/ranking").permitAll()
                 .antMatchers("/api/auth/**").permitAll()
                 .anyRequest().authenticated()
                 .and()

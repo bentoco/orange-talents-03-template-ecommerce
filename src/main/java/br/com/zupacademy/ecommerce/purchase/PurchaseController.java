@@ -1,4 +1,4 @@
-package br.com.zupacademy.ecommerce.product.purchase;
+package br.com.zupacademy.ecommerce.purchase;
 
 import br.com.zupacademy.ecommerce.config.mailer.MailerManager;
 import br.com.zupacademy.ecommerce.product.Product;
@@ -27,7 +27,7 @@ public class PurchaseController {
 
     @PostMapping ( value = "/api/purchase" )
     @Transactional
-    public String createPurchase (
+    public String buy (
             @Valid @RequestBody PurchaseRequest request ,
             @AuthenticationPrincipal User buyer ,
             UriComponentsBuilder builder
@@ -39,25 +39,13 @@ public class PurchaseController {
         if (purchaseProduct.reserveIfHasStock(purchaseQuantity)) {
             var newPurchase = new Purchase(purchaseProduct , purchaseQuantity , purchasePayment , buyer);
             manager.persist(newPurchase);
-            mailer.newPurchase(newPurchase, purchaseProduct);
+            mailer.newPurchase(newPurchase , purchaseProduct);
 
-            if (purchasePayment.equals(PaymentGateway.PAYPAL)) {
-                //paypal.com?buyerId={idGeradoDaCompra}&redirectUrl={urlRetornoAppPosPagamento}
-                String
-                        urlPaypal =
-                        builder.path("/redirect-paypal/{id}").buildAndExpand(newPurchase.getId()).toString();
-                return "paypal.com?buyerId=" + newPurchase.getId() + "&redirectUrl=" + urlPaypal;
-            } else {
-                //pagseguro.com?returnId={idGeradoDaCompra}&redirectUrl={urlRetornoAppPosPagamento}
-                String
-                        urlPagseguro =
-                        builder.path("/redirect-pagseguro/{id}").buildAndExpand(newPurchase.getId()).toString();
-                return "pagseguro.com?returnId=" + newPurchase.getId() + "&redirectUrl=" + urlPagseguro;
-            }
+            return newPurchase.urlRedirect(builder);
         }
 
         BindException outOfStockException = new BindException(request , "newPurchaseRequest");
-        outOfStockException.reject("purchase.product.outOfStock" , "Sem estoque para o produto");
+        outOfStockException.reject("purchase.product.outOfStock" , "product with zeroed stock");
 
         throw outOfStockException;
     }

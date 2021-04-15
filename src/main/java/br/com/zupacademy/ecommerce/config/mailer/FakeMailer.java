@@ -12,12 +12,10 @@ public class FakeMailer implements Mailer {
     @Override public void send (
             @NotBlank String body ,
             @NotBlank String subject ,
-            @NotBlank String nameFrom ,
             @NotBlank @Email String from ,
             @NotBlank @Email String to ) {
         System.out.println(body);
         System.out.println(subject);
-        System.out.println(nameFrom);
         System.out.println(from);
         System.out.println(to);
     }

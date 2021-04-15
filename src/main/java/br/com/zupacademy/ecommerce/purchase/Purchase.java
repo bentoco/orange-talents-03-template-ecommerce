@@ -1,13 +1,18 @@
-package br.com.zupacademy.ecommerce.product.purchase;
+package br.com.zupacademy.ecommerce.purchase;
 
 import br.com.zupacademy.ecommerce.product.Product;
+import br.com.zupacademy.ecommerce.purchase.payment.Payment;
+import br.com.zupacademy.ecommerce.purchase.payment.PaymentReturn;
+import br.com.zupacademy.ecommerce.purchase.payment.PaymentStatus;
 import br.com.zupacademy.ecommerce.user.User;
-import net.bytebuddy.asm.Advice;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.persistence.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class Purchase {
@@ -24,7 +29,7 @@ public class Purchase {
     @Positive
     private int purchaseQuantity;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated ( EnumType.STRING )
     @NotNull
     private PaymentGateway paymentGateway;
 
@@ -32,6 +37,9 @@ public class Purchase {
     @NotNull
     @Valid
     private User buyer;
+
+    @OneToMany ( mappedBy = "purchase", cascade = CascadeType.MERGE )
+    private Set<Payment> paymentTransactions = new HashSet<>();
 
     public Purchase (
             @NotNull @Valid Product purchaseProduct ,
@@ -64,12 +72,25 @@ public class Purchase {
         return buyer;
     }
 
-    @Override public String toString () {
-        return "Purchase{" +
-                "id=" + id +
-                ", purchaseProduct=" + purchaseProduct +
-                ", purchaseQuantity=" + purchaseQuantity +
-                ", buyer=" + buyer +
-                '}';
+    public User getSeller () {
+        return purchaseProduct.getProductOwner();
+    }
+
+    public String urlRedirect ( UriComponentsBuilder builder ) {
+        return this.paymentGateway.redirectUrl(builder , this);
+    }
+
+    public PurchaseProcessed process ( PaymentReturn paymentReturn , Purchase purchase ) {
+        if (paymentSucessfully()) {
+            throw new IllegalArgumentException("a finished purchase cannot be paid again");
+        }
+        PaymentStatus status = paymentGateway.status(paymentReturn);
+        paymentTransactions.add(new Payment(paymentReturn.getPaymentId() , status , purchase));
+
+        return new PurchaseProcessed(this);
+    }
+
+    public boolean paymentSucessfully () {
+        return paymentTransactions.stream().anyMatch(Payment::isSuccessful);
     }
 }

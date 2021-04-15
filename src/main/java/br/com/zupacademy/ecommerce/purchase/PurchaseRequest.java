@@ -1,4 +1,4 @@
-package br.com.zupacademy.ecommerce.product.purchase;
+package br.com.zupacademy.ecommerce.purchase;
 
 import br.com.zupacademy.ecommerce.config.validators.MustExistId;
 import br.com.zupacademy.ecommerce.product.Product;
